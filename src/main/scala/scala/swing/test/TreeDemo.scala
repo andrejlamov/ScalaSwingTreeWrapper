@@ -7,6 +7,7 @@ import Swing._
 import scala.swing.event._
 import Tree._
 import java.awt.Color
+import scala.util.Random
 
 object TreeDemo extends SimpleSwingApplication {
   import Tree._
@@ -117,6 +118,22 @@ object TreeDemo extends SimpleSwingApplication {
         expandRow(0)
       }
 
+      // Use case 6: Add nodes to tree
+      case class N(value: String, children: Seq[N])
+      var items = N("Random numbers", Seq[N]())
+      val addtree = new Tree[N] {
+
+	treeData = TreeModel(items)(_.children)
+	renderer = Tree.Renderer(_.value)
+
+	def add(name: String) = {
+	  items = N(items.value, items.children :+ N(name, Seq())) 
+	  treeData = TreeModel(items)(_.children)
+	  renderer = Tree.Renderer(_.value)
+	}
+	
+      }
+
       import TabbedPane.Page
       import BorderPanel.Position._
       
@@ -132,9 +149,12 @@ object TreeDemo extends SimpleSwingApplication {
       pages += new Page("5: Editable file system", northAndCenter(
         new Label("Warning! Editing will actually rename files.") {foreground = Color.red}, 
         new ScrollPane(editableFileSystemTree)))
-
-    }
+      pages += new Page("6: Add nodes to the tree without folding back", 
+	northAndCenter(
+	  new Button{action = Action("Dummy add"){addtree.add((new Random()).nextInt.toString)}}, 
+	  new ScrollPane(addtree)))
     
-    size = (800, 600): Dimension
+      size = (800, 600): Dimension
+    }
   }
 }
