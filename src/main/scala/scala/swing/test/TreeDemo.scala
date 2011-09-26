@@ -120,17 +120,20 @@ object TreeDemo extends SimpleSwingApplication {
 
       // Use case 6: Add nodes to tree
       case class N(value: String, children: Seq[N])
-      var items = N("Random numbers", Seq[N]())
+      var items = N("data", Seq())
       val addtree = new Tree[N] {
 
 	treeData = TreeModel(items)(_.children)
 	renderer = Tree.Renderer(_.value)
 
-	def add(name: String) = {
-	  items = N(items.value, items.children :+ N(name, Seq())) 
+	treeData. () 
+	def add(a1: String, a2: String) = {
+	  items = N(items.value, items.children ++ 
+		    Seq(N(a1,Seq(N(a2, Seq(N("board", Seq()))))))) 
 	  treeData = TreeModel(items)(_.children)
 	  renderer = Tree.Renderer(_.value)
 	}
+
 	
       }
 
@@ -151,7 +154,9 @@ object TreeDemo extends SimpleSwingApplication {
         new ScrollPane(editableFileSystemTree)))
       pages += new Page("6: Add nodes to the tree without folding back", 
 	northAndCenter(
-	  new Button{action = Action("Dummy add"){addtree.add((new Random()).nextInt.toString)}}, 
+	  new Button{action = Action("Dummy add"){
+	    addtree.add((new Random()).nextInt.toString,(new Random()).nextInt.toString)
+	  }}, 
 	  new ScrollPane(addtree)))
     
       size = (800, 600): Dimension
