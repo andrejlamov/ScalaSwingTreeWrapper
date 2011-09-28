@@ -126,12 +126,24 @@ object TreeDemo extends SimpleSwingApplication {
 	treeData = TreeModel(items)(_.children)
 	renderer = Tree.Renderer(_.value)
 
-	treeData. () 
+	var expandedPaths = List[List[N]]()
+
 	def add(a1: String, a2: String) = {
 	  items = N(items.value, items.children ++ 
 		    Seq(N(a1,Seq(N(a2, Seq(N("board", Seq()))))))) 
 	  treeData = TreeModel(items)(_.children)
 	  renderer = Tree.Renderer(_.value)
+	}
+
+
+		  
+	  expandedPaths.foreach((x) => {this.peer.setSelectionPath(x)
+					this.peer.scrollPathToVisible(x)})
+
+	  listenTo(mouse.clicks)
+       	  reactions += {
+	  case MouseClicked(_, point, _, 1, _) => 
+	    expandedPaths = expandedPaths.:+(getClosestPathForLocation(point.x, point.y))
 	}
 
 	
