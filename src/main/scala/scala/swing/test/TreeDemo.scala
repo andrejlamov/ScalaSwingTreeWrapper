@@ -126,19 +126,13 @@ object TreeDemo extends SimpleSwingApplication {
 	treeData = TreeModel(items)(_.children)
 	renderer = Tree.Renderer(_.value)
 
-	var valuePaths = List[List[String]]()
+	var valuePaths = Set[List[String]]()
 
 	def add(a1: String, a2: String) = {
 	  val newNode = N(a1,Seq(N(a2, Seq(N("board", Seq())))))
 	  items = N(items.value, items.children ++ Seq(newNode)) 
 	  treeData = TreeModel(items)(_.children)
-
-	  valuePaths.foreach((x) => {
-	    val p = getValSeq(x, items)
-	    expandPath(p)
-	    p.foreach(println)
-	  })
-	  valuePaths = List[List[String]]()
+	  valuePaths.foreach((x) => expandPath(getValSeq(x, items)))
 	}
 
 	def getValSeq(values: List[String], node: N) : List[N] = {
@@ -146,7 +140,6 @@ object TreeDemo extends SimpleSwingApplication {
 	  val nodeVal = node.value
 	  if(someHead.isDefined && someHead.get == nodeVal) {
 	    val someChild = findChild(values.tail, node.children)
-	    println(someChild)
 	    return List[N](node) ++ (if(someChild.isDefined) getValSeq(values.tail, someChild.get) else List[N]())
 	  } else 
 	    return List[N]()
@@ -162,12 +155,19 @@ object TreeDemo extends SimpleSwingApplication {
 	listenTo(mouse.clicks)
        	reactions += {
 	  case MouseClicked(_, point, _, 1, _) => 
-	    val somePath = getClosestPathForLocation(point.x, point.y)
-	    var tempPath = List[String]()
-	    somePath.foreach((x) => tempPath = tempPath.:+(x.value))
-	    valuePaths = valuePaths.:+(tempPath)
-	  }
-      }
+	      var tempPath = List[String]()
+	      getClosestPathForLocation(point.x, point.y).foreach((x) => tempPath = tempPath.:+(x.value))
+	      
+	      println("Clicked on " + tempPath)
+	      valuePaths = if(valuePaths.contains(tempPath)){
+		              println("Removing " + tempPath)  
+			      valuePaths.filterNot(_.containsSlice(tempPath))
+			    }else{
+			      println("Adding " + tempPath)
+			      valuePaths + tempPath
+			    }
+      
+      }}
 
       import TabbedPane.Page
       import BorderPanel.Position._
