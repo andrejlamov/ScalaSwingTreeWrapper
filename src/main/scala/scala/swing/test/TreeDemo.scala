@@ -126,27 +126,47 @@ object TreeDemo extends SimpleSwingApplication {
 	treeData = TreeModel(items)(_.children)
 	renderer = Tree.Renderer(_.value)
 
-	var expandedPaths = List[List[N]]()
+	var valuePaths = List[List[String]]()
 
 	def add(a1: String, a2: String) = {
-	  items = N(items.value, items.children ++ 
-		    Seq(N(a1,Seq(N(a2, Seq(N("board", Seq()))))))) 
+	  val newNode = N(a1,Seq(N(a2, Seq(N("board", Seq())))))
+	  items = N(items.value, items.children ++ Seq(newNode)) 
 	  treeData = TreeModel(items)(_.children)
-	  renderer = Tree.Renderer(_.value)
+
+	  valuePaths.foreach((x) => {
+	    val p = getValSeq(x, items)
+	    expandPath(p)
+	    p.foreach(println)
+	  })
+	  valuePaths = List[List[String]]()
 	}
 
-
-		  
-	  expandedPaths.foreach((x) => {this.peer.setSelectionPath(x)
-					this.peer.scrollPathToVisible(x)})
-
-	  listenTo(mouse.clicks)
-       	  reactions += {
-	  case MouseClicked(_, point, _, 1, _) => 
-	    expandedPaths = expandedPaths.:+(getClosestPathForLocation(point.x, point.y))
+	def getValSeq(values: List[String], node: N) : List[N] = {
+	  val someHead = values.headOption 
+	  val nodeVal = node.value
+	  if(someHead.isDefined && someHead.get == nodeVal) {
+	    val someChild = findChild(values.tail, node.children)
+	    println(someChild)
+	    return List[N](node) ++ (if(someChild.isDefined) getValSeq(values.tail, someChild.get) else List[N]())
+	  } else 
+	    return List[N]()
 	}
 
+	private def findChild(values: List[String], children: Seq[N]) : Option[N] = {
+	  if(values.headOption.isDefined)
+	    return children.find((x) => x.value == values.head)
+	  else 
+	    return None
+	}
 	
+	listenTo(mouse.clicks)
+       	reactions += {
+	  case MouseClicked(_, point, _, 1, _) => 
+	    val somePath = getClosestPathForLocation(point.x, point.y)
+	    var tempPath = List[String]()
+	    somePath.foreach((x) => tempPath = tempPath.:+(x.value))
+	    valuePaths = valuePaths.:+(tempPath)
+	  }
       }
 
       import TabbedPane.Page
