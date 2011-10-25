@@ -126,7 +126,6 @@ object TreeDemo extends SimpleSwingApplication {
 	treeData = TreeModel(items)(_.children)
 	renderer = Tree.Renderer(_.value)
 
-	treeData. () 
 	def add(a1: String, a2: String) = {
 	  items = N(items.value, items.children ++ 
 		    Seq(N(a1,Seq(N(a2, Seq(N("board", Seq()))))))) 
